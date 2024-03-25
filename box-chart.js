@@ -93,7 +93,7 @@ class BoxChart extends HTMLElement {
       }
       .scale .part {
         width: 20%;
-        height: 10px;
+        height: 8px;
         border-left: 2px solid black;
         position: relative;
         display: flex;
@@ -102,32 +102,29 @@ class BoxChart extends HTMLElement {
         position: absolute;
         left: 0;
         top: 0;
-        height: 40%;
-        border-right: 2px solid red;
+        height: 4px;
+        border-right: 2px solid black;
       }
       .part .micropart:nth-child(1) {
         left: 50%;
       }
       .part .micropart:nth-child(2) {
-        left: 66%;
+        left: 75%;
       }
       .part .micropart:nth-child(3) {
-        left: 80%;
+        left: 87.5%;
       }
       .part .micropart:nth-child(4) {
         left: 83.333333%;
       }
       .part .micropart:nth-child(5) {
-        left: 85.7142%;
+        left: 93.75%;
       }
       .part .micropart:nth-child(6) {
-        left: 87.5%;
+        left: 96.875%;
       }
       .part .micropart:nth-child(7) {
-        left: 88.88%;
-      }
-      .part .micropart:nth-child(8) {
-        left: 90%;
+        left: 98.75%;
       }
       .scale .part .label {
         position: absolute;
@@ -164,11 +161,9 @@ class BoxChart extends HTMLElement {
           <div class="micropart"></div>
           <div class="micropart"></div>
           <div class="micropart"></div>
-          <div class="micropart"></div>
           <span class="label">10<sup>-2</sup></span>
         </div>
         <div class="part">
-          <div class="micropart"></div>
           <div class="micropart"></div>
           <div class="micropart"></div>
           <div class="micropart"></div>
@@ -186,7 +181,6 @@ class BoxChart extends HTMLElement {
           <div class="micropart"></div>
           <div class="micropart"></div>
           <div class="micropart"></div>
-          <div class="micropart"></div>
           <span class="label">10<sup>0</sup></span>
         </div>
         <div class="part">
@@ -197,11 +191,9 @@ class BoxChart extends HTMLElement {
           <div class="micropart"></div>
           <div class="micropart"></div>
           <div class="micropart"></div>
-          <div class="micropart"></div>
           <span class="label">10<sup>1</sup></span>
         </div>
         <div class="part">
-          <div class="micropart"></div>
           <div class="micropart"></div>
           <div class="micropart"></div>
           <div class="micropart"></div>
