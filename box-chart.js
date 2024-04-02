@@ -1,15 +1,40 @@
 class BoxChart extends HTMLElement {
+  defaultSizes = {
+    containerWidth: 1400,
+    containerHeight: 40,
+    boxStart: 0,
+    boxWidth: 200,
+    dotPosition: 0,
+    limitLeft: -1,
+    limitRight: -1,
+    trianglePosition: 0,
+  };
+
+  iconsSize = 16;
+  halfIconsSize = Math.floor(this.iconsSize / 2);
+
   constructor() {
     super();
-    this.containerWidth = Number(this.getAttribute("width")) || 1600;
-    this.containerHeight = Number(this.getAttribute("height")) || 40;
-    this.boxStart = (Number(this.getAttribute("box-start")) || 120) - 1;
-    this.boxWidth = (Number(this.getAttribute("box-width")) || 200) - 2;
-    this.dotPosition = (Number(this.getAttribute("dot-position")) || 0) - 8;
-    this.limitLeft = Number(this.getAttribute("limit-left") ?? -1);
-    this.limitRight = Number(this.getAttribute("limit-right") ?? -1);
+    this.containerWidth =
+      Number(this.getAttribute("width")) || this.defaultSizes.containerWidth;
+    this.containerHeight =
+      Number(this.getAttribute("height")) || this.defaultSizes.containerHeight;
+    this.boxStart =
+      Number(this.getAttribute("box-start")) || this.defaultSizes.boxStart;
+    this.boxWidth =
+      Number(this.getAttribute("box-width")) || this.defaultSizes.boxWidth;
+    this.dotPosition =
+      Number(this.getAttribute("dot-position")) ||
+      this.defaultSizes.dotPosition;
+    this.limitLeft = Number(
+      this.getAttribute("limit-left") ?? this.defaultSizes.limitLeft
+    );
+    this.limitRight = Number(
+      this.getAttribute("limit-right") ?? this.defaultSizes.limitRight
+    );
     this.trianglePosition =
-      (Number(this.getAttribute("triangle-position")) || 0) - 8;
+      Number(this.getAttribute("triangle-position")) ||
+      this.defaultSizes.trianglePosition;
 
     this.isDotRed =
       this.dotPosition > this.boxStart + this.boxWidth ||
@@ -47,34 +72,37 @@ class BoxChart extends HTMLElement {
       }
       .box {
         position: absolute;
-        left: ${this.boxStart}px;
+        left: ${this.boxStart - 1}px;
         height: 30px;
-        width: ${this.boxWidth}px;
+        width: ${this.boxWidth - 2}px;
         border: 2px solid grey;
         background-color: lightgray;
       }
       .dot {
         position: absolute;
-        left: ${this.dotPosition}px;
+        left: ${this.dotPosition - this.halfIconsSize}px;
         border-radius: 50%;
-        width: 16px;
-        height: 16px;
-        background-color: blue;
+        width: ${this.iconsSize}px;
+        height: ${this.iconsSize}px;
+        background-color: rgba(0, 0, 255, 0.7);
       }
       .triangle {
         position: absolute;
-        left: ${this.trianglePosition}px;
+        left: ${this.trianglePosition - this.halfIconsSize}px;
         width: 0;
         height: 0;
         border: 8px solid transparent;
         border-top: 0;
-        border-bottom: 16px solid #ffe900;
+        border-bottom: ${this.iconsSize}px solid #ffe900;
       }
       .exclamation {
         position: absolute;
         right: -20px;
         font-size: 2.5rem;
         color: red;
+      }
+      .label {
+        margin: 0 10px;
       }
       .limit {
         position: absolute;
@@ -104,27 +132,7 @@ class BoxChart extends HTMLElement {
         top: 0;
         height: 4px;
         border-right: 2px solid black;
-      }
-      .part .micropart:nth-child(1) {
-        left: 50%;
-      }
-      .part .micropart:nth-child(2) {
-        left: 75%;
-      }
-      .part .micropart:nth-child(3) {
-        left: 87.5%;
-      }
-      .part .micropart:nth-child(4) {
-        left: 83.333333%;
-      }
-      .part .micropart:nth-child(5) {
-        left: 93.75%;
-      }
-      .part .micropart:nth-child(6) {
-        left: 96.875%;
-      }
-      .part .micropart:nth-child(7) {
-        left: 98.75%;
+        display: none;
       }
       .scale .part .label {
         position: absolute;
@@ -135,12 +143,32 @@ class BoxChart extends HTMLElement {
         border-right: 2px solid black;
       }
       .red {
-        background-color: red;
+        background-color: rgba(255, 0, 0, 0.7);
       }
       .hidden {
         display: none;
       }
+      .bold {
+        font-weight: 600;
+      }
       </style>
+      <div class="base">
+        <label class="label"><span class="bold">scale length</span>: ${
+          this.containerWidth
+        }</label>
+        <label class="label"><span class="bold">box start, end</span>: ${
+          this.boxStart
+        }, ${this.boxWidth}</label>
+        <label class="label"><span class="bold">limits</span>: ${
+          this.limitLeft
+        }, ${this.limitRight}</label>
+        <label class="label"><span class="bold">dot value</span>: ${
+          this.dotPosition
+        }</label>
+        <label class="label"><span class="bold">triangle value</span>: ${
+          this.trianglePosition
+        }</label>
+      </div>
       <div class="container base">
         <div class="limit left ${this.limitLeft === -1 ? "hidden" : ""}"></div>
         <div class="limit right ${
@@ -154,52 +182,20 @@ class BoxChart extends HTMLElement {
       </div>
       <div class="scale base">
         <div class="part">
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
           <span class="label">10<sup>-2</sup></span>
         </div>
         <div class="part">
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
           <span class="label">10<sup>-1</sup></span>
         </div>
         <div class="part">
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
           <div class="micropart"></div>
           <span class="label">10<sup>0</sup></span>
         </div>
         <div class="part">
           <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
           <span class="label">10<sup>1</sup></span>
         </div>
         <div class="part">
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
-          <div class="micropart"></div>
           <div class="micropart"></div>
           <span class="label">10<sup>2</sup></span>
         </div>
