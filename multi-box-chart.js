@@ -22,6 +22,7 @@ class MultiBoxChart extends HTMLElement {
     [this.limitStart, this.limitEnd] =
       this.getAttribute("limit")?.split(",").map(Number) || this.defaultLimit;
     this.xScaleSteps = Number(this.getAttribute("x-steps")) || this.xScaleSteps;
+    this.bottomStep = this.height / this.dots.length;
     this.render();
   }
 
@@ -142,28 +143,17 @@ class MultiBoxChart extends HTMLElement {
           z-index: 1;
         }
 
-        .y-label > span:nth-child(1) {
-          bottom: 50px;
-        }
-        .y-label > span:nth-child(2) {
-          bottom: 100px;
-        }
-        .y-label > span:nth-child(3) {
-          bottom: 150px;
-        }
-        .y-label > span:nth-child(4) {
-          bottom: 200px;
-        }
-        .y-label > span:nth-child(5) {
-          bottom: 250px;
-        }
-        .y-label > span:nth-child(6) {
-          bottom: 300px;
-        }
-
         .y-label > span::after {
           bottom: -2px;
         }
+
+        ${this.dots
+          .map((_, i) => {
+            return `.y-label > span:nth-child(${i + 1}) {
+                      bottom: ${this.bottomStep * (i + 1)}px;
+                    }\n`;
+          })
+          .join("")}
 
         .dots > div {
           width: var(--dot-dim);
@@ -175,7 +165,6 @@ class MultiBoxChart extends HTMLElement {
 
         ${this.dots
           .map((dot, i) => {
-            const bottomStep = 50;
             const isLast = i === this.dots.length - 1;
             const isInside =
               this.boxStart < dot && this.boxStart + this.boxSize > dot;
@@ -188,8 +177,8 @@ class MultiBoxChart extends HTMLElement {
                   isInside ? "var(--dot-color)" : "var(--dot-color-alert)"
                 };`;
             return `.dots > div:nth-child(${i + 1}) {
-                    bottom: calc(50px + ${
-                      bottomStep * i
+                    bottom: calc(${
+                      this.bottomStep * (i + 1)
                     }px + (var(--dot-dim) / 2 * -1) - 1px);
                     left: calc(${dot}px + (var(--dot-dim) / 2 * -1) - 1px);
                     ${background}
@@ -199,8 +188,11 @@ class MultiBoxChart extends HTMLElement {
       </style>
       <div class="axis" id="axis">
         <div class="y-label">
-          <span>T1</span><span>T2</span><span>T3</span><span>T4</span
-          ><span>T5</span><span>T6</span>
+        ${Array.from({ length: this.dots.length })
+          .map((_, i) => {
+            return `<span>T${i + 1}</span>`;
+          })
+          .join("")}
         </div>
 
         <div class="box"></div>
