@@ -5,6 +5,7 @@ class MultiBoxChart extends HTMLElement {
   defaultBox = [100, 300];
   defaultLimit = [50, 400];
   defaultMediane = 200;
+  xScaleSteps = 10;
 
   constructor() {
     super();
@@ -20,7 +21,7 @@ class MultiBoxChart extends HTMLElement {
       this.getAttribute("box")?.split(",").map(Number) || this.defaultBox;
     [this.limitStart, this.limitEnd] =
       this.getAttribute("limit")?.split(",").map(Number) || this.defaultLimit;
-    this.xScaleSteps = 10;
+    this.xScaleSteps = Number(this.getAttribute("x-steps")) || this.xScaleSteps;
     this.render();
   }
 
