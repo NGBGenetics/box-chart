@@ -11,8 +11,8 @@ class MultiBoxChart extends HTMLElement {
   }
 
   connectedCallback() {
-    this.width = this.getAttribute("width") || this.defaultWidth;
-    this.height = this.getAttribute("height") || this.defaultHeight;
+    this.width = Number(this.getAttribute("width")) || this.defaultWidth;
+    this.height = Number(this.getAttribute("height")) || this.defaultHeight;
     this.dots =
       this.getAttribute("dots")?.split(",").map(Number) || this.defaultDots;
     this.mediane = Number(this.getAttribute("mediane")) || this.defaultMediane;
@@ -20,6 +20,7 @@ class MultiBoxChart extends HTMLElement {
       this.getAttribute("box")?.split(",").map(Number) || this.defaultBox;
     [this.limitStart, this.limitEnd] =
       this.getAttribute("limit")?.split(",").map(Number) || this.defaultLimit;
+    this.xScaleSteps = 10;
     this.render();
   }
 
@@ -64,7 +65,7 @@ class MultiBoxChart extends HTMLElement {
         .limit,
         .limit::after {
           width: 0;
-          height: ${this.height}px;
+          height: calc(${this.height}px + 28px);
           border-left: 2px solid var(--limit-color);
           position: absolute;
           left: calc(${this.limitStart}px - 2px);
@@ -105,29 +106,15 @@ class MultiBoxChart extends HTMLElement {
           bottom: -34px;
         }
 
-        .x-label > span:nth-child(1) {
-          left: -5px;
-        }
-
-        .x-label > span:nth-child(2) {
-          left: ${(this.width / 6) * 1}px;
-        }
-
-        .x-label > span:nth-child(3) {
-          left: ${(this.width / 6) * 2}px;
-        }
-
-        .x-label > span:nth-child(4) {
-          left: ${(this.width / 6) * 3}px;
-        }
-
-        .x-label > span:nth-child(5) {
-          left: ${(this.width / 6) * 4}px;
-        }
-
-        .x-label > span:nth-child(6) {
-          left: ${(this.width / 6) * 5}px;
-        }
+        ${Array.from({ length: this.xScaleSteps })
+          .map((_, i) => {
+            return `.x-label > span:nth-child(${i + 1}) {
+                    left: calc(${Math.floor(
+                      (this.width / this.xScaleSteps) * i
+                    )}px - 5px);
+                  }\n`;
+          })
+          .join("")}
 
         .y-label > span {
           position: relative;
@@ -221,7 +208,13 @@ class MultiBoxChart extends HTMLElement {
         <div class="dots">${this.dots.map(() => `<div></div>`).join("")}</div>
 
         <div class="x-label">
-          <span>0</span><span>1/6</span><span>2/6</span><span>3/6</span><span>4/6</span><span>5/6</span>
+        ${Array.from({ length: this.xScaleSteps })
+          .map((_, i) => {
+            return `<span>${Math.floor(
+              (this.width / this.xScaleSteps) * i
+            )}</span>`;
+          })
+          .join("")}
         </div>
       </div>
     `;
