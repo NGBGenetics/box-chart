@@ -15,12 +15,15 @@ class MultiBoxChart extends HTMLElement {
     this.width = Number(this.getAttribute("width")) || this.defaultWidth;
     this.height = Number(this.getAttribute("height")) || this.defaultHeight;
     this.dots =
-      this.getAttribute("dots")?.split(",").map(Number) || this.defaultDots;
+      this.getAttribute("dots")?.replaceAll(" ", "").split(",").map(Number) ||
+      this.defaultDots;
     this.mediane = Number(this.getAttribute("mediane")) || this.defaultMediane;
     [this.boxStart, this.boxSize] =
-      this.getAttribute("box")?.split(",").map(Number) || this.defaultBox;
+      this.getAttribute("box")?.replaceAll(" ", "").split(",").map(Number) ||
+      this.defaultBox;
     [this.limitStart, this.limitEnd] =
-      this.getAttribute("limit")?.split(",").map(Number) || this.defaultLimit;
+      this.getAttribute("limit")?.replaceAll(" ", "").split(",").map(Number) ||
+      this.defaultLimit;
     this.xScaleSteps = Number(this.getAttribute("x-steps")) || this.xScaleSteps;
     this.bottomStep = this.height / this.dots.length;
     this.render();
