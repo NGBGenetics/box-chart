@@ -155,22 +155,22 @@ class MultiBoxChart extends HTMLElement {
         }
 
         .y-label > span:nth-child(1) {
-          bottom: 0;
-        }
-        .y-label > span:nth-child(2) {
           bottom: 50px;
         }
-        .y-label > span:nth-child(3) {
+        .y-label > span:nth-child(2) {
           bottom: 100px;
         }
-        .y-label > span:nth-child(4) {
+        .y-label > span:nth-child(3) {
           bottom: 150px;
         }
-        .y-label > span:nth-child(5) {
+        .y-label > span:nth-child(4) {
           bottom: 200px;
         }
-        .y-label > span:nth-child(6) {
+        .y-label > span:nth-child(5) {
           bottom: 250px;
+        }
+        .y-label > span:nth-child(6) {
+          bottom: 300px;
         }
 
         .y-label > span::after {
@@ -200,7 +200,7 @@ class MultiBoxChart extends HTMLElement {
                   isInside ? "var(--dot-color)" : "var(--dot-color-alert)"
                 };`;
             return `.dots > div:nth-child(${i + 1}) {
-                    bottom: calc(${
+                    bottom: calc(50px + ${
                       bottomStep * i
                     }px + (var(--dot-dim) / 2 * -1) - 1px);
                     left: calc(${dot}px + (var(--dot-dim) / 2 * -1) - 1px);
