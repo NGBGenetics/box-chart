@@ -30,6 +30,7 @@ class MultiBoxChart extends HTMLElement {
   }
 
   render() {
+    // TODO arancioni
     this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = `
       <style>
@@ -44,6 +45,11 @@ class MultiBoxChart extends HTMLElement {
           --mediane-color: #ffe900;
           --last-outside: #ff0000;
           --last-inside: rgb(0, 52, 200);
+          --last-close: rgb(255, 140, 0);
+          --close: rgba(255, 140, 0, 80%);
+          --global-tb-margin: 60px;
+          --global-lr-margin: 100px;
+          --global-top-margin: 20px;
           font-family: arial;
         }
 
@@ -52,8 +58,8 @@ class MultiBoxChart extends HTMLElement {
           height: ${this.height}px;
           border-bottom: 2px solid var(--axis-color);
           border-left: 2px solid var(--axis-color);
-          margin: 60px 100px;
-          padding-top: 10px;
+          margin: var(--global-tb-margin) var(--global-lr-margin);
+          padding-top: var(--global-top-margin);
           position: relative;
         }
 
@@ -100,26 +106,15 @@ class MultiBoxChart extends HTMLElement {
           width: ${this.boxSize}px;
           height: ${this.height}px;
           background: var(--box-color);
-          border-radius: 2px;
           position: absolute;
           bottom: 0;
-          left: calc(${this.boxStart}px - 1px);
+          left: calc(${this.boxStart}px);
         }
 
         .x-label > span {
           position: absolute;
           bottom: -34px;
         }
-
-        ${Array.from({ length: this.xScaleSteps })
-          .map((_, i) => {
-            return `.x-label > span:nth-child(${i + 1}) {
-                    left: calc(${Math.floor(
-                      (this.width / this.xScaleSteps) * i
-                    )}px - 5px);
-                  }\n`;
-          })
-          .join("")}
 
         .y-label > span {
           position: relative;
@@ -150,6 +145,28 @@ class MultiBoxChart extends HTMLElement {
           bottom: -2px;
         }
 
+        .dots > div {
+          width: var(--dot-dim);
+          height: var(--dot-dim);
+          border-radius: 50%;
+          background-color: var(--dot-color);
+          position: absolute;
+          z-index: 2;
+        }
+
+        /* DOTS POSITION AND BACKGROUND */   
+        ${this.dots
+          .map((dot, i) => {
+            return `.dots > div:nth-child(${i + 1}) {
+                    bottom: calc(${this.bottomStep * (i + 1)}px - 1px);
+                    left: calc(${dot}px - 1px);
+                    ${this.printBackground(i, dot)}
+                    transform: translate(-50%, 50%);
+                  }\n`;
+          })
+          .join("")}
+
+        /* Y LABELS BOTTOM */
         ${this.dots
           .map((_, i) => {
             return `.y-label > span:nth-child(${i + 1}) {
@@ -158,44 +175,20 @@ class MultiBoxChart extends HTMLElement {
           })
           .join("")}
 
-        .dots > div {
-          width: var(--dot-dim);
-          height: var(--dot-dim);
-          border-radius: 50%;
-          background-color: var(--dot-color);
-          position: absolute;
-        }
-
-        ${this.dots
-          .map((dot, i) => {
-            const isLast = i === this.dots.length - 1;
-            const isInside =
-              this.boxStart < dot && this.boxStart + this.boxSize > dot;
-
-            const background = isLast
-              ? `background-color: ${
-                  isLast ? "var(--last-inside)" : "var(--dot-color-alert)"
-                };`
-              : ` background-color: ${
-                  isInside ? "var(--dot-color)" : "var(--dot-color-alert)"
-                };`;
-            return `.dots > div:nth-child(${i + 1}) {
-                    bottom: calc(${
-                      this.bottomStep * (i + 1)
-                    }px + (var(--dot-dim) / 2 * -1) - 1px);
-                    left: calc(${dot}px + (var(--dot-dim) / 2 * -1) - 1px);
-                    ${background}
-                  }\n`;
+        /* X LABELS LEFT */
+        ${Array.from({ length: this.xScaleSteps })
+          .map((_, i) => {
+            return `.x-label > span:nth-child(${i + 1}) {
+            left: calc(${Math.floor((this.width / this.xScaleSteps) * i)}px);
+            transform: translateX(-50%);
+          }\n`;
           })
           .join("")}
+
       </style>
       <div class="axis" id="axis">
         <div class="y-label">
-        ${Array.from({ length: this.dots.length })
-          .map((_, i) => {
-            return `<span>T${i + 1}</span>`;
-          })
-          .join("")}
+          ${this.printElements("span", this.dots.length, (i) => `T${i + 1}`)}
         </div>
 
         <div class="box"></div>
@@ -204,16 +197,46 @@ class MultiBoxChart extends HTMLElement {
         <div class="dots">${this.dots.map(() => `<div></div>`).join("")}</div>
 
         <div class="x-label">
-        ${Array.from({ length: this.xScaleSteps })
-          .map((_, i) => {
-            return `<span>${Math.floor(
-              (this.width / this.xScaleSteps) * i
-            )}</span>`;
-          })
-          .join("")}
+        ${this.printElements("span", this.xScaleSteps, (i) =>
+          Math.floor((this.width / this.xScaleSteps) * i)
+        )}
         </div>
       </div>
     `;
+  }
+
+  printElements(elementType, length, content) {
+    return Array.from({ length })
+      .map((_, i) => {
+        return `<${elementType}>${content(i)}</${elementType}>`;
+      })
+      .join("");
+  }
+
+  printBackground(i, dotXPosition) {
+    const isLast = i === this.dots.length - 1;
+    const isInside =
+      this.boxStart <= dotXPosition &&
+      this.boxStart + this.boxSize >= dotXPosition;
+
+    const isClose =
+      (this.boxStart - 30 <= dotXPosition && this.boxStart > dotXPosition) ||
+      (this.boxStart + this.boxSize + 30 >= dotXPosition &&
+        this.boxStart + this.boxSize < dotXPosition);
+
+    if (isClose) {
+      return isLast
+        ? `background-color: var(--last-close);`
+        : `background-color: var(--close);`;
+    }
+
+    return isLast
+      ? `background-color: ${
+          isInside ? "var(--last-inside)" : "var(--last-outside)"
+        };`
+      : ` background-color: ${
+          isInside ? "var(--dot-color)" : "var(--dot-color-alert)"
+        };`;
   }
 }
 
