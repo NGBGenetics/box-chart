@@ -9,10 +9,28 @@
     <h2>Example Multi:</h2>
     <multi-box-chart
       width="1000"
-      height="500"
-      dots="0,70,100,450,876, 960"
+      dots="150"
+      mediane="125"
+      box="100,180"
+      limit="50,280"
+      x-steps="10"
+    ></multi-box-chart>
+
+    <multi-box-chart
+      width="1000"
+      dots="1.5,2.7,8.6"
+      time="22/05/2019,22/05/2020,22/05/2021"
+      mediane="12.5"
+      box="10.0,18.0"
+      limit="5.0,7.5"
+      x-steps="10"
+    ></multi-box-chart>
+
+    <multi-box-chart
+      width="1000"
+      dots="80, 250, 560"
       mediane="350"
-      box="100,830"
+      box="100,600"
       limit="100,900"
       x-steps="10"
     ></multi-box-chart>
@@ -35,7 +53,9 @@
       x-steps="5"
     ></multi-box-chart>
 
-    <h2>Example 1:</h2>
+    <multi-box-chart></multi-box-chart>
+
+    <!-- <h2>Example 1:</h2>
     <box-chart
       height="60"
       box-start="200"
@@ -118,9 +138,9 @@
       box-width="300"
       dot-position="101"
       triangle-position="300"
-    ></box-chart>
+    ></box-chart> -->
 
-    <script src="box-chart.js"></script>
+    <!-- <script src="box-chart.js"></script> -->
     <script src="multi-box-chart.js"></script>
   </body>
 </html>
