@@ -1,8 +1,9 @@
 class MultiBoxChart extends HTMLElement {
-  // TODO deve mettere le label x delle box, mediane e limits, mettere le label dei dots vicino ai pallini
   defaultWidth = 600;
   defaultDots = [150];
   xScaleSteps = 10;
+  borderWidth = 2;
+  dotWidth = 16;
 
   constructor() {
     super();
@@ -56,7 +57,11 @@ class MultiBoxChart extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
-          --dot-dim: 16px;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+          --global-tb-margin: 60px;
+          --global-lr-margin: 100px;
+          --global-top-margin: 20px;
+          --dot-dim: ${this.dotWidth}px;
           --axis-color: #014d4e;
           --limit-color: #016667;
           --box-color: lightgray;
@@ -68,17 +73,13 @@ class MultiBoxChart extends HTMLElement {
           --last-inside: rgb(0, 52, 200);
           --last-close: rgb(255, 140, 0);
           --close: rgba(255, 140, 0, 80%);
-          --global-tb-margin: 60px;
-          --global-lr-margin: 100px;
-          --global-top-margin: 20px;
-          font-family: arial;
         }
 
         .axis {
           width: ${this.width}px;
           height: ${this.height}px;
-          border-bottom: 2px solid var(--axis-color);
-          border-left: 2px solid var(--axis-color);
+          border-bottom: ${this.borderWidth}px solid var(--axis-color);
+          border-left: ${this.borderWidth}px solid var(--axis-color);
           margin: var(--global-tb-margin) var(--global-lr-margin);
           padding-top: var(--global-top-margin);
           position: relative;
@@ -98,28 +99,30 @@ class MultiBoxChart extends HTMLElement {
         .limit::after {
           width: 0;
           height: calc(${this.height}px + 28px);
-          border-left: 2px solid var(--limit-color);
+          border-left: ${this.borderWidth}px solid var(--limit-color);
           position: absolute;
-          left: calc(${this.distributedLimitStart}px - 2px);
+          left: ${this.distributedLimitStart - this.borderWidth}px;
           bottom: -14px;
         }
 
         .limit::after {
           content: "";
           display: block;
-          left: calc(${
-            this.distributedLimitEnd - this.distributedLimitStart
-          }px - 2px);
+          left: ${
+            this.distributedLimitEnd -
+            this.distributedLimitStart -
+            this.borderWidth
+          }px;
           bottom: 0;
         }
 
         .mediane {
           content: "";
           display: block;
-          width: 2px;
+          width: ${this.borderWidth}px;
           height: ${this.height}px;
           position: absolute;
-          left: calc(${this.distributedMediane}px - 2px);
+          left: ${this.distributedMediane - this.borderWidth}px;
           bottom: 0px;
           background-color: var(--mediane-color);
           z-index: 1;
@@ -131,7 +134,7 @@ class MultiBoxChart extends HTMLElement {
           background: var(--box-color);
           position: absolute;
           bottom: 0;
-          left: calc(${this.distributedBoxStart}px);
+          left: ${this.distributedBoxStart - this.borderWidth}px;
         }
 
         .x-label > span {
@@ -141,23 +144,23 @@ class MultiBoxChart extends HTMLElement {
         }
 
         .x-label-mediane {
-          left: calc(${this.distributedMediane}px - 2px);
+          left: ${this.distributedMediane - this.borderWidth}px;
         }
 
         .x-label-limit-start {
-          left: calc(${this.distributedLimitStart}px - 2px);
+          left: ${this.distributedLimitStart - this.borderWidth}px;
         }
 
         .x-label-limit-end {
-          left: calc(${this.distributedLimitEnd}px - 2px);
+          left: ${this.distributedLimitEnd - this.borderWidth}px;
         }
 
         .x-label-box-start {
-          left: calc(${this.distributedBoxStart}px - 2px);
+          left: ${this.distributedBoxStart - this.borderWidth}px;
         }
 
         .x-label-box-end {
-          left: calc(${this.distributedBoxEnd}px - 2px);
+          left: ${this.distributedBoxEnd - this.borderWidth}px;
         }
 
         .y-label > span {
@@ -169,14 +172,14 @@ class MultiBoxChart extends HTMLElement {
           height: 10px;
           position: absolute;
           left: 0;
-          bottom: -2px;
+          bottom: -${this.borderWidth}px;
           transform: translateX(calc(-100% - 10px));
         }
 
         .y-line > span {
           display: block;
           width: ${this.width}px;
-          border-bottom: 2px dashed gray;
+          border-bottom: ${this.borderWidth}px dashed gray;
           position: absolute;
           left: 0;
           bottom: 0;
@@ -215,7 +218,7 @@ class MultiBoxChart extends HTMLElement {
         ${this.distributedDots
           .map((_, i) => {
             return `.y-label > span:nth-child(${i + 1}) {
-                      bottom: ${this.bottomStep * (i + 1) - 2}px;
+                      bottom: ${this.bottomStep * (i + 1) - this.borderWidth}px;
                     }\n`;
           })
           .join("")}
@@ -225,7 +228,7 @@ class MultiBoxChart extends HTMLElement {
         ${this.distributedDots
           .map((_, i) => {
             return `.y-line > span:nth-child(${i + 1}) {
-                      bottom: ${this.bottomStep * (i + 1) - 2}px;
+                      bottom: ${this.bottomStep * (i + 1) - this.borderWidth}px;
                     }\n`;
           })
           .join("")}
@@ -246,10 +249,7 @@ class MultiBoxChart extends HTMLElement {
         <div class="limit"></div>
         <div class="mediane"></div>
         <div class="dots">${this.dots
-          .map(
-            (dot) =>
-              `<div><span class="dot-label">${dot.toFixed(2)}</span></div>`
-          )
+          .map((dot) => `<div><span class="dot-label">${dot}</span></div>`)
           .join("")}</div>
 
         <div class="x-label">
