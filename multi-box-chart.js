@@ -104,11 +104,11 @@ class MultiBoxChart extends HTMLElement {
         .limit,
         .limit::after {
           width: 0;
-          height: calc(${this.height}px + 28px);
+          height: calc(${this.height}px + 24px);
           border-left: ${this.borderWidth}px solid var(--limit-color);
           position: absolute;
           left: ${this.distributedLimitStart - this.borderWidth}px;
-          bottom: -14px;
+          bottom: -12px;
         }
 
         .limit::after {
