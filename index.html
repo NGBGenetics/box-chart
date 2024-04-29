@@ -6,23 +6,37 @@
     <title>Box chart example</title>
   </head>
   <body>
+    <style>
+      multi-box-chart {
+        margin: 60px 100px;
+        display: block;
+      }
+    </style>
     <h2>Example Multi:</h2>
+
+    <multi-box-chart
+      width="1000"
+      dots="3.7597911009675"
+      mediane="419.993256"
+      box="3.650970,4.0634936"
+      limit="3.269086,4.37098"
+      log="true"
+    ></multi-box-chart>
+
     <multi-box-chart
       width="1000"
       dots="150"
       mediane="125"
       box="100,180"
       limit="50,280"
-      x-steps="10"
     ></multi-box-chart>
 
     <multi-box-chart
       width="1000"
-      dots="50, 100,150,200, 250"
+      dots="50,99,100,150,151,200,250"
       mediane="200"
       box="100,150"
       limit="50,250"
-      x-steps="10"
     ></multi-box-chart>
 
     <multi-box-chart
@@ -30,9 +44,8 @@
       dots="1.5,2.7,8.6"
       time="22/05/2019,22/05/2020,22/05/2021"
       mediane="12.5"
-      box="10.0,18.0"
-      limit="5.0,7.5"
-      x-steps="10"
+      box="10.0,15.0"
+      limit="5.0,20"
     ></multi-box-chart>
 
     <multi-box-chart
@@ -41,7 +54,6 @@
       mediane="350"
       box="100,600"
       limit="100,900"
-      x-steps="10"
     ></multi-box-chart>
 
     <multi-box-chart
@@ -50,7 +62,6 @@
       mediane="350"
       box="150,750"
       limit="100,500"
-      x-steps="10"
     ></multi-box-chart>
 
     <multi-box-chart
@@ -59,97 +70,10 @@
       mediane="350"
       box="0,500"
       limit="100,300"
-      x-steps="5"
     ></multi-box-chart>
 
     <multi-box-chart></multi-box-chart>
 
-    <!-- <h2>Example 1:</h2>
-    <box-chart
-      height="60"
-      box-start="200"
-      box-width="300"
-      dot-position="400"
-      triangle-position="200"
-      limit-left="0"
-      limit-right="500"
-      width="800"
-    ></box-chart>
-
-    <h2>Example 2.1 (inside, blue):</h2>
-    <box-chart
-      box-start="500"
-      box-width="100"
-      dot-position="599"
-      triangle-position="500"
-      limit-left="60"
-      limit-right="650"
-    ></box-chart>
-    <h2>Example 2.2 (inside, blue):</h2>
-    <box-chart
-      box-start="500"
-      box-width="100"
-      dot-position="600"
-      triangle-position="500"
-      limit-left="60"
-      limit-right="650"
-    ></box-chart>
-    <h2>Example 2.3 (outside, red):</h2>
-    <box-chart
-      box-start="500"
-      box-width="100"
-      dot-position="601"
-      triangle-position="500"
-      limit-left="60"
-      limit-right="650"
-    ></box-chart>
-    <h2>Example 2.4 (outside, red):</h2>
-    <box-chart
-      box-start="500"
-      box-width="100"
-      dot-position="602"
-      triangle-position="500"
-      limit-left="60"
-      limit-right="650"
-    ></box-chart>
-    <h2>Example 2.5 (outside, red):</h2>
-    <box-chart
-      box-start="500"
-      box-width="100"
-      dot-position="608"
-      triangle-position="500"
-      limit-left="60"
-      limit-right="650"
-    ></box-chart>
-
-    <h2>Example 3.1 (outside, red):</h2>
-    <box-chart
-      height="80"
-      box-start="100"
-      box-width="300"
-      dot-position="99"
-      triangle-position="300"
-    ></box-chart>
-
-    <h2>Example 3.2 (inside, blue):</h2>
-    <box-chart
-      height="80"
-      box-start="100"
-      box-width="300"
-      dot-position="100"
-      triangle-position="300"
-    ></box-chart>
-
-    <h2>Example 3.3 (inside, blue):</h2>
-    <box-chart
-      height="80"
-      box-start="100"
-      box-width="300"
-      dot-position="101"
-      triangle-position="300"
-    ></box-chart> -->
-
-    <!-- <script src="box-chart.js"></script> -->
     <script src="multi-box-chart.js"></script>
   </body>
 </html>

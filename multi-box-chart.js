@@ -1,7 +1,6 @@
 class MultiBoxChart extends HTMLElement {
   defaultWidth = 600;
   defaultDots = [150];
-  xScaleSteps = 10;
   borderWidth = 2;
   dotWidth = 16;
 
@@ -11,6 +10,7 @@ class MultiBoxChart extends HTMLElement {
 
   connectedCallback() {
     this.width = Number(this.getAttribute("width")) || this.defaultWidth;
+    this.log = this.getAttribute("log") === "true";
     this.dots =
       this.getAttribute("dots")?.replaceAll(" ", "").split(",").map(Number) ||
       this.defaultDots;
@@ -31,9 +31,7 @@ class MultiBoxChart extends HTMLElement {
       this.mediane || []
     );
     this.distributedMediane = this.getPixelValue(this.mediane);
-    this.distributedDots = this.dots.map((dot) =>
-      this.getPixelValue(dot, this.maxValue, this.width)
-    );
+    this.distributedDots = this.dots.map((dot) => this.getPixelValue(dot));
     this.height = Number(this.getAttribute("height")) || this.dots.length * 50;
     this.boxStart = box?.[0];
     this.boxEnd = box?.[1];
@@ -43,13 +41,21 @@ class MultiBoxChart extends HTMLElement {
     this.limitEnd = limit?.[1];
     this.distributedLimitStart = this.getPixelValue(this.limitStart);
     this.distributedLimitEnd = this.getPixelValue(this.limitEnd);
-    this.xScaleSteps = Number(this.getAttribute("x-steps")) || this.xScaleSteps;
     this.bottomStep = this.height / this.dots.length;
     this.render();
   }
 
+  // getPixelValue(value, log = false) {
+  //   return (value / this.maxValue) * 0.9 * this.width;
+  // }
   getPixelValue(value) {
-    return (value / this.maxValue) * 0.9 * this.width;
+    let val = value;
+    let maxValue = this.maxValue;
+    if (this.log) {
+      val = Math.log10(value);
+      maxValue = Math.log10(maxValue);
+    }
+    return (val / maxValue) * 0.9 * this.width;
   }
 
   render() {
@@ -58,9 +64,8 @@ class MultiBoxChart extends HTMLElement {
       <style>
         :host {
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+          font-size: 12px;
           --global-tb-margin: 60px;
-          --global-lr-margin: 100px;
-          --global-top-margin: 20px;
           --dot-dim: ${this.dotWidth}px;
           --axis-color: #014d4e;
           --limit-color: #016667;
@@ -80,7 +85,6 @@ class MultiBoxChart extends HTMLElement {
           height: ${this.height}px;
           border-bottom: ${this.borderWidth}px solid var(--axis-color);
           border-left: ${this.borderWidth}px solid var(--axis-color);
-          margin: var(--global-tb-margin) var(--global-lr-margin);
           padding-top: var(--global-top-margin);
           position: relative;
         }
@@ -129,7 +133,9 @@ class MultiBoxChart extends HTMLElement {
         }
 
         .box {
-          width: ${this.distributedBoxEnd - this.distributedBoxStart}px;
+          width: ${
+            this.distributedBoxEnd - this.distributedBoxStart + this.borderWidth
+          }px;
           height: ${this.height}px;
           background: var(--box-color);
           position: absolute;
@@ -139,27 +145,27 @@ class MultiBoxChart extends HTMLElement {
 
         .x-label > span {
           position: absolute;
-          bottom: -34px;
+          bottom: -25px;
           transform: translateX(-50%);
         }
 
-        .x-label-mediane {
+        .x-label >.x-label-mediane {
           left: ${this.distributedMediane - this.borderWidth}px;
         }
 
-        .x-label-limit-start {
+        .x-label >.x-label-limit-start {
           left: ${this.distributedLimitStart - this.borderWidth}px;
         }
 
-        .x-label-limit-end {
+        .x-label >.x-label-limit-end {
           left: ${this.distributedLimitEnd - this.borderWidth}px;
         }
 
-        .x-label-box-start {
+        .x-label >.x-label-box-start {
           left: ${this.distributedBoxStart - this.borderWidth}px;
         }
 
-        .x-label-box-end {
+        .x-label > .x-label-box-end {
           left: ${this.distributedBoxEnd - this.borderWidth}px;
         }
 
@@ -274,13 +280,14 @@ class MultiBoxChart extends HTMLElement {
   printBackground(i, dotXPosition) {
     const isLast = i === this.distributedDots.length - 1;
     const isInside =
-      this.boxStart <= dotXPosition &&
-      this.boxStart + this.boxEnd >= dotXPosition;
+      this.distributedBoxStart <= dotXPosition &&
+      this.distributedBoxEnd >= dotXPosition;
 
     const isClose =
-      (this.boxStart - 30 <= dotXPosition && this.boxStart > dotXPosition) ||
-      (this.boxStart + this.boxEnd + 30 >= dotXPosition &&
-        this.boxStart + this.boxEnd < dotXPosition);
+      (this.distributedBoxStart - 30 <= dotXPosition &&
+        this.distributedBoxStart > dotXPosition) ||
+      (this.distributedBoxEnd + 30 >= dotXPosition &&
+        this.distributedBoxEnd < dotXPosition);
 
     if (isClose) {
       return isLast
