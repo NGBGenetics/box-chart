@@ -78,6 +78,7 @@ class MultiBoxChart extends HTMLElement {
           --last-inside: rgb(0, 52, 200);
           --last-close: rgb(255, 140, 0);
           --close: rgba(255, 140, 0, 80%);
+
         }
 
         .axis {
@@ -87,6 +88,7 @@ class MultiBoxChart extends HTMLElement {
           border-left: ${this.borderWidth}px solid var(--axis-color);
           padding-top: var(--global-top-margin);
           position: relative;
+          margin: 0 auto;
         }
 
         .axis::after {
