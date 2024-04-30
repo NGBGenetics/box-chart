@@ -49,8 +49,8 @@ class MultiBoxChart extends HTMLElement {
     let val = value;
     let maxValue = this.maxValue;
     if (this.log && value > 0) {
-      val = Math.log10(value);
-      maxValue = Math.log10(maxValue);
+      val = Math.log10(value) + 2;
+      maxValue = Math.log10(maxValue) + 2;
     }
     return (val / maxValue) * 0.9 * this.width;
   }
@@ -279,11 +279,13 @@ class MultiBoxChart extends HTMLElement {
           .join("")}</div>
 
         <div class="x-label">
-          <span class="x-label-mediane">${this.mediane.toFixed(2)}</span>
-          <span class="x-label-range-start">${this.rangeStart.toFixed(2)}</span>
-          <span class="x-label-range-end">${this.rangeEnd.toFixed(2)}</span>
-          <span class="x-label-box-start">${this.boxStart.toFixed(2)}</span>
-          <span class="x-label-box-end">${this.boxEnd.toFixed(2)}</span>
+          <span class="x-label-mediane">${this.mediane?.toFixed(2)}</span>
+          <span class="x-label-range-start">${this.rangeStart?.toFixed(
+            2
+          )}</span>
+          <span class="x-label-range-end">${this.rangeEnd?.toFixed(2)}</span>
+          <span class="x-label-box-start">${this.boxStart?.toFixed(2)}</span>
+          <span class="x-label-box-end">${this.boxEnd?.toFixed(2)}</span>
         </div>
       </div>
     `;
