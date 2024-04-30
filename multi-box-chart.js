@@ -18,7 +18,7 @@ class MultiBoxChart extends HTMLElement {
       ?.replaceAll(" ", "")
       .split(",")
       .map(Number);
-    const limit = this.getAttribute("limit")
+    const range = this.getAttribute("range")
       ?.replaceAll(" ", "")
       .split(",")
       .map(Number);
@@ -27,7 +27,7 @@ class MultiBoxChart extends HTMLElement {
     this.maxValue = Math.max(
       ...this.dots,
       ...(box ? box : []),
-      ...(limit ? limit : []),
+      ...(range ? range : []),
       this.mediane || []
     );
     this.distributedMediane = this.getPixelValue(this.mediane);
@@ -37,21 +37,18 @@ class MultiBoxChart extends HTMLElement {
     this.boxEnd = box?.[1];
     this.distributedBoxStart = this.getPixelValue(this.boxStart);
     this.distributedBoxEnd = this.getPixelValue(this.boxEnd);
-    this.limitStart = limit?.[0];
-    this.limitEnd = limit?.[1];
-    this.distributedLimitStart = this.getPixelValue(this.limitStart);
-    this.distributedLimitEnd = this.getPixelValue(this.limitEnd);
+    this.rangeStart = Number(range?.[0]);
+    this.rangeEnd = Number(range?.[1]);
+    this.distributedrangeStart = this.getPixelValue(this.rangeStart);
+    this.distributedrangeEnd = this.getPixelValue(this.rangeEnd);
     this.bottomStep = this.height / this.dots.length;
     this.render();
   }
 
-  // getPixelValue(value, log = false) {
-  //   return (value / this.maxValue) * 0.9 * this.width;
-  // }
   getPixelValue(value) {
     let val = value;
     let maxValue = this.maxValue;
-    if (this.log) {
+    if (this.log && value > 0) {
       val = Math.log10(value);
       maxValue = Math.log10(maxValue);
     }
@@ -68,7 +65,7 @@ class MultiBoxChart extends HTMLElement {
           --global-tb-margin: 60px;
           --dot-dim: ${this.dotWidth}px;
           --axis-color: #014d4e;
-          --limit-color: #016667;
+          --range-color: #66a3a3;
           --box-color: lightgray;
           --dot-color: rgb(0, 52, 200, 0.6);
           --dot-color-warn: rgba(255, 100, 0, 0.6);
@@ -83,7 +80,7 @@ class MultiBoxChart extends HTMLElement {
 
         .axis {
           width: ${this.width}px;
-          height: ${this.height}px;
+          height: ${this.height + 50}px;
           border-bottom: ${this.borderWidth}px solid var(--axis-color);
           border-left: ${this.borderWidth}px solid var(--axis-color);
           padding-top: var(--global-top-margin);
@@ -101,22 +98,34 @@ class MultiBoxChart extends HTMLElement {
           bottom: -6px;
         }
 
-        .limit,
-        .limit::after {
+        .axis::before {
+          position: absolute;
+          content: " ";
+          border-top: 5px solid transparent;
+          border-bottom: 5px solid transparent;
+          border-left: 8px solid var(--axis-color);
+          left: -5px;
+          top: -6px;
+          transform: rotate(-90deg);
+        }
+
+        .range,
+        .range::after {
+          display: ${this.rangeEnd ? "block" : "none"};
           width: 0;
           height: calc(${this.height}px + 24px);
-          border-left: ${this.borderWidth}px solid var(--limit-color);
+          border-left: ${this.borderWidth}px solid var(--range-color);
           position: absolute;
-          left: ${this.distributedLimitStart - this.borderWidth}px;
+          left: ${this.distributedrangeStart - this.borderWidth}px;
           bottom: -12px;
         }
 
-        .limit::after {
+        .range::after {
           content: "";
           display: block;
           left: ${
-            this.distributedLimitEnd -
-            this.distributedLimitStart -
+            this.distributedrangeEnd -
+            this.distributedrangeStart -
             this.borderWidth
           }px;
           bottom: 0;
@@ -124,7 +133,7 @@ class MultiBoxChart extends HTMLElement {
 
         .mediane {
           content: "";
-          display: block;
+          display: ${this.mediane !== 0 ? "block" : "none"};
           width: ${this.borderWidth}px;
           height: ${this.height}px;
           position: absolute;
@@ -135,6 +144,7 @@ class MultiBoxChart extends HTMLElement {
         }
 
         .box {
+          display: ${this.boxEnd ? "block" : "none"};
           width: ${
             this.distributedBoxEnd - this.distributedBoxStart + this.borderWidth
           }px;
@@ -152,22 +162,27 @@ class MultiBoxChart extends HTMLElement {
         }
 
         .x-label >.x-label-mediane {
+          display: ${this.mediane !== 0 ? "block" : "none"};
           left: ${this.distributedMediane - this.borderWidth}px;
         }
 
-        .x-label >.x-label-limit-start {
-          left: ${this.distributedLimitStart - this.borderWidth}px;
+        .x-label >.x-label-range-start {
+          display: ${this.rangeStart ? "block" : "none"};
+          left: ${this.distributedrangeStart - this.borderWidth}px;
         }
 
-        .x-label >.x-label-limit-end {
-          left: ${this.distributedLimitEnd - this.borderWidth}px;
+        .x-label >.x-label-range-end {
+          display: ${this.rangeEnd ? "block" : "none"};
+          left: ${this.distributedrangeEnd - this.borderWidth}px;
         }
 
         .x-label >.x-label-box-start {
+          display: ${this.boxStart ? "block" : "none"};
           left: ${this.distributedBoxStart - this.borderWidth}px;
         }
 
         .x-label > .x-label-box-end {
+          display: ${this.boxEnd ? "block" : "none"};
           left: ${this.distributedBoxEnd - this.borderWidth}px;
         }
 
@@ -254,18 +269,21 @@ class MultiBoxChart extends HTMLElement {
         </div>
 
         <div class="box"></div>
-        <div class="limit"></div>
+        <div class="range"></div>
         <div class="mediane"></div>
         <div class="dots">${this.dots
-          .map((dot) => `<div><span class="dot-label">${dot}</span></div>`)
+          .map(
+            (dot) =>
+              `<div><span class="dot-label">${dot.toFixed(2)}</span></div>`
+          )
           .join("")}</div>
 
         <div class="x-label">
-          <span class="x-label-mediane">${this.mediane}</span>
-          <span class="x-label-limit-start">${this.limitStart}</span>
-          <span class="x-label-limit-end">${this.limitEnd}</span>
-          <span class="x-label-box-start">${this.boxStart}</span>
-          <span class="x-label-box-end">${this.boxEnd}</span>
+          <span class="x-label-mediane">${this.mediane.toFixed(2)}</span>
+          <span class="x-label-range-start">${this.rangeStart.toFixed(2)}</span>
+          <span class="x-label-range-end">${this.rangeEnd.toFixed(2)}</span>
+          <span class="x-label-box-start">${this.boxStart.toFixed(2)}</span>
+          <span class="x-label-box-end">${this.boxEnd.toFixed(2)}</span>
         </div>
       </div>
     `;

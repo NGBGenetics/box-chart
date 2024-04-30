@@ -5,8 +5,8 @@ class BoxChart extends HTMLElement {
     boxStart: 0,
     boxWidth: 200,
     dotPosition: 0,
-    limitLeft: -1,
-    limitRight: -1,
+    rangeLeft: -1,
+    rangeRight: -1,
     trianglePosition: 0,
   };
 
@@ -26,11 +26,11 @@ class BoxChart extends HTMLElement {
     this.dotPosition =
       Number(this.getAttribute("dot-position")) ||
       this.defaultSizes.dotPosition;
-    this.limitLeft = Number(
-      this.getAttribute("limit-left") ?? this.defaultSizes.limitLeft
+    this.rangeLeft = Number(
+      this.getAttribute("range-left") ?? this.defaultSizes.rangeLeft
     );
-    this.limitRight = Number(
-      this.getAttribute("limit-right") ?? this.defaultSizes.limitRight
+    this.rangeRight = Number(
+      this.getAttribute("range-right") ?? this.defaultSizes.rangeRight
     );
     this.trianglePosition =
       Number(this.getAttribute("triangle-position")) ||
@@ -104,7 +104,7 @@ class BoxChart extends HTMLElement {
       .label {
         margin: 0 10px;
       }
-      .limit {
+      .range {
         position: absolute;
         bottom: 0;
         height: ${this.containerHeight - 4}px;
@@ -113,11 +113,11 @@ class BoxChart extends HTMLElement {
         margin-bottom: 2px;
         z-index: 1;
       }
-      .limit.left {
-        left: ${this.limitLeft}px;
+      .range.left {
+        left: ${this.rangeLeft}px;
       }
-      .limit.right {
-        left: ${this.limitRight - 1}px;
+      .range.right {
+        left: ${this.rangeRight - 1}px;
       }
       .scale .part {
         width: 20%;
@@ -159,9 +159,9 @@ class BoxChart extends HTMLElement {
         <label class="label"><span class="bold">box start, end</span>: ${
           this.boxStart
         }, ${this.boxWidth}</label>
-        <label class="label"><span class="bold">limits</span>: ${
-          this.limitLeft
-        }, ${this.limitRight}</label>
+        <label class="label"><span class="bold">ranges</span>: ${
+          this.rangeLeft
+        }, ${this.rangeRight}</label>
         <label class="label"><span class="bold">dot value</span>: ${
           this.dotPosition
         }</label>
@@ -170,9 +170,9 @@ class BoxChart extends HTMLElement {
         }</label>
       </div>
       <div class="container base">
-        <div class="limit left ${this.limitLeft === -1 ? "hidden" : ""}"></div>
-        <div class="limit right ${
-          this.limitRight === -1 ? "hidden" : ""
+        <div class="range left ${this.rangeLeft === -1 ? "hidden" : ""}"></div>
+        <div class="range right ${
+          this.rangeRight === -1 ? "hidden" : ""
         }"></div>
         <div class="line"></div>
         <div class="box"></div>
