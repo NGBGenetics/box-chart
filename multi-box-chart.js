@@ -3,6 +3,7 @@ class MultiBoxChart extends HTMLElement {
   defaultDots = [150];
   borderWidth = 2;
   dotWidth = 16;
+  yHeight = 20;
 
   constructor() {
     super();
@@ -32,7 +33,7 @@ class MultiBoxChart extends HTMLElement {
     );
     this.distributedMediane = this.getPixelValue(this.mediane);
     this.distributedDots = this.dots.map((dot) => this.getPixelValue(dot));
-    this.height = Number(this.getAttribute("height")) || this.dots.length * 50;
+    this.height = this.dots.length * this.yHeight;
     this.boxStart = box?.[0];
     this.boxEnd = box?.[1];
     this.distributedBoxStart = this.getPixelValue(this.boxStart);
@@ -80,7 +81,7 @@ class MultiBoxChart extends HTMLElement {
 
         .axis {
           width: ${this.width}px;
-          height: ${this.height + 50}px;
+          height: ${this.height + this.yHeight}px;
           border-bottom: ${this.borderWidth}px solid var(--axis-color);
           border-left: ${this.borderWidth}px solid var(--axis-color);
           padding-top: var(--global-top-margin);
