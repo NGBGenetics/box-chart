@@ -260,7 +260,6 @@ class MultiBoxChart extends HTMLElement {
             const y2 = this.bottomStep * (i + 2);
             const angle = this.calculateAngle(x1, y1, x2, y2);
             const width = this.calculateDistance(x1, y1, x2, y2);
-            const [startX, startY] = this.rotatePoint(x1, y1, x1, y1, angle);
             return `.dots > div:nth-child(${i + 1}) > p {
                   position: absolute;
                   left: ${this.dotWidth / 2}px;
