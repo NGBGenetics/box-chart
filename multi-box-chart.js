@@ -3,7 +3,7 @@ class MultiBoxChart extends HTMLElement {
   defaultDots = [150];
   borderWidth = 2;
   dotWidth = 16;
-  yHeight = 20;
+  defaultYHeight = 20;
 
   constructor() {
     super();
@@ -11,6 +11,10 @@ class MultiBoxChart extends HTMLElement {
 
   connectedCallback() {
     this.width = Number(this.getAttribute("width")) || this.defaultWidth;
+    this.heightStep =
+      Number(this.getAttribute("heightStep")) || this.defaultYHeight;
+    this.lines =
+      this.getAttribute("lines") === "true" || !this.getAttribute("lines");
     this.log = this.getAttribute("log") === "true";
     this.dots =
       this.getAttribute("dots")?.replaceAll(" ", "").split(",").map(Number) ||
@@ -33,7 +37,7 @@ class MultiBoxChart extends HTMLElement {
     );
     this.distributedMediane = this.getPixelValue(this.mediane);
     this.distributedDots = this.dots.map((dot) => this.getPixelValue(dot));
-    this.height = this.dots.length * this.yHeight;
+    this.height = this.dots.length * this.heightStep;
     this.boxStart = box?.[0];
     this.boxEnd = box?.[1];
     this.distributedBoxStart = this.getPixelValue(this.boxStart);
@@ -76,12 +80,16 @@ class MultiBoxChart extends HTMLElement {
           --last-inside: rgb(0, 52, 200);
           --last-close: rgb(255, 140, 0);
           --close: rgba(255, 140, 0, 80%);
+        }
 
+        p {
+          margin: 0;
+          padding: 0;
         }
 
         .axis {
           width: ${this.width}px;
-          height: ${this.height + this.yHeight}px;
+          height: ${this.height + this.heightStep}px;
           border-bottom: ${this.borderWidth}px solid var(--axis-color);
           border-left: ${this.borderWidth}px solid var(--axis-color);
           padding-top: var(--global-top-margin);
@@ -234,7 +242,37 @@ class MultiBoxChart extends HTMLElement {
                     left: calc(${dot}px - 1px);
                     ${this.printBackground(i, dot)}
                     transform: translate(-50%, 50%);
+                    position: absolute;
                   }\n`;
+          })
+          .join("")}
+
+        /* LINES POSITION AND BACKGROUND */   
+        ${this.distributedDots
+          .map((dot, i) => {
+            if (i === this.distributedDots.length - 1) {
+              return;
+            }
+            const nextDot = this.distributedDots?.[i + 1];
+            const x1 = dot;
+            const y1 = this.bottomStep * (i + 1);
+            const x2 = nextDot;
+            const y2 = this.bottomStep * (i + 2);
+            const angle = this.calculateAngle(x1, y1, x2, y2);
+            const width = this.calculateDistance(x1, y1, x2, y2);
+            const [startX, startY] = this.rotatePoint(x1, y1, x1, y1, angle);
+            return `.dots > div:nth-child(${i + 1}) > p {
+                  position: absolute;
+                  left: ${this.dotWidth / 2}px;
+                  bottom: ${this.dotWidth / 2}px;
+                  background-color: transparent;
+                  height: 2px;
+                  width: ${width}px;
+                  transform-origin: 0% 0%; 
+                  transform: rotate(-${angle}deg);
+                  border-radius: 0;
+                  ${this.printBackgroundGradient(i, dot, nextDot)}
+                }\n`;
           })
           .join("")}
 
@@ -275,7 +313,9 @@ class MultiBoxChart extends HTMLElement {
         <div class="dots">${this.dots
           .map(
             (dot) =>
-              `<div><span class="dot-label">${dot.toFixed(2)}</span></div>`
+              `<div>${
+                this.lines ? "<p></p>" : ""
+              }<span class="dot-label">${dot.toFixed(2)}</span></div>`
           )
           .join("")}</div>
 
@@ -300,17 +340,23 @@ class MultiBoxChart extends HTMLElement {
       .join("");
   }
 
-  printBackground(i, dotXPosition) {
-    const isLast = i === this.distributedDots.length - 1;
-    const isInside =
-      this.distributedBoxStart <= dotXPosition &&
-      this.distributedBoxEnd >= dotXPosition;
+  calculateDotPosition(start, end, dot, i, length) {
+    const isLast = i === length;
+    const isInside = start <= dot && end >= dot;
 
     const isClose =
-      (this.distributedBoxStart - 30 <= dotXPosition &&
-        this.distributedBoxStart > dotXPosition) ||
-      (this.distributedBoxEnd + 30 >= dotXPosition &&
-        this.distributedBoxEnd < dotXPosition);
+      (start - 30 <= dot && start > dot) || (end + 30 >= dot && end < dot);
+    return [isLast, isInside, isClose];
+  }
+
+  printBackground(i, dotXPosition) {
+    const [isLast, isInside, isClose] = this.calculateDotPosition(
+      this.distributedBoxStart,
+      this.distributedBoxEnd,
+      dotXPosition,
+      i,
+      this.distributedDots.length - 1
+    );
 
     if (isClose) {
       return isLast
@@ -325,6 +371,104 @@ class MultiBoxChart extends HTMLElement {
       : ` background-color: ${
           isInside ? "var(--dot-color)" : "var(--dot-color-alert)"
         };`;
+  }
+
+  printBackgroundGradient(i, dotXPosition, dotXNextPosition) {
+    const [isLast, isInside, isClose] = this.calculateDotPosition(
+      this.distributedBoxStart,
+      this.distributedBoxEnd,
+      dotXPosition,
+      i,
+      this.distributedDots.length - 1
+    );
+
+    const [isNextLast, isNextInside, isNextClose] = this.calculateDotPosition(
+      this.distributedBoxStart,
+      this.distributedBoxEnd,
+      dotXNextPosition,
+      i + 1,
+      this.distributedDots.length - 1
+    );
+
+    const blueToRed = `background: linear-gradient(90deg, var(--dot-color) 0%, var(--dot-color-alert) 100%);`;
+    const redToBlue = `background: linear-gradient(90deg, var(--dot-color-alert) 0%, var(--dot-color) 100%);`;
+
+    const blueToOrange = `background: linear-gradient(90deg, var(--dot-color) 0%, var(--dot-color-warn) 100%);`;
+    const orangeToBlue = `background: linear-gradient(90deg, var(--dot-color-warn) 0%, var(--dot-color) 100%);`;
+
+    const redToOrange = `background: linear-gradient(90deg, var(--dot-color-alert) 0%, var(--dot-color-warn) 100%);`;
+    const orangeToRed = `background: linear-gradient(90deg,var(--dot-color-warn) 0%, var(--dot-color-alert)  100%);`;
+
+    const blueToBlue = `background: linear-gradient(90deg,var(--dot-color) 0%, var(--dot-color)  100%);`;
+    const redToRed = `background: linear-gradient(90deg,var(--dot-color-alert) 0%, var(--dot-color-alert) 100%);`;
+    const orangeToOrange = `background: linear-gradient(90deg,var(--dot-color-warn) 0%, var(--dot-color-warn) 100%);`;
+
+    if (isInside) {
+      if (isNextInside) {
+        return blueToBlue;
+      }
+      if (isNextClose) {
+        return blueToOrange;
+      }
+      if (!isNextInside && !isNextClose) {
+        return blueToRed;
+      }
+    }
+
+    if (!isInside) {
+      if (isNextClose) {
+        return redToOrange;
+      }
+      if (isNextInside) {
+        return redToBlue;
+      }
+      if (!isNextInside) {
+        return redToRed;
+      }
+    }
+
+    if (isClose) {
+      if (isNextClose) {
+        return orangeToOrange;
+      }
+      if (isNextInside) {
+        return orangeToBlue;
+      }
+      if (!isNextInside) {
+        return orangeToRed;
+      }
+    }
+
+    return `background: var(--median-color);`;
+  }
+
+  calculateAngle(x1, y1, x2, y2) {
+    // Calculate the slope of the line
+    let m = (y2 - y1) / (x2 - x1);
+
+    // Calculate the angle in radians
+    let thetaRadians = Math.atan(m);
+
+    // Convert the angle to degrees
+    let thetaDegrees = thetaRadians * (180 / Math.PI);
+
+    // Adjust the angle for lines in the 2nd and 3rd quadrants
+    if (x2 < x1) {
+      thetaDegrees += 180;
+    }
+
+    // Handle the special case of a vertical line
+    if (x1 === x2) {
+      thetaDegrees = y2 > y1 ? 90 : -90;
+    }
+
+    return thetaDegrees;
+  }
+
+  calculateDistance(x1, y1, x2, y2) {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    return Math.sqrt(dx * dx + dy * dy);
   }
 }
 
