@@ -4,7 +4,7 @@ class BoxChart extends HTMLElement {
     containerHeight: 40,
     boxStart: 0,
     boxWidth: 200,
-    dotPosition: 0,
+    xvaluesPosition: 0,
     rangeLeft: -1,
     rangeRight: -1,
     trianglePosition: 0,
@@ -23,9 +23,9 @@ class BoxChart extends HTMLElement {
       Number(this.getAttribute("box-start")) || this.defaultSizes.boxStart;
     this.boxWidth =
       Number(this.getAttribute("box-width")) || this.defaultSizes.boxWidth;
-    this.dotPosition =
-      Number(this.getAttribute("dot-position")) ||
-      this.defaultSizes.dotPosition;
+    this.xvaluesPosition =
+      Number(this.getAttribute("xvalues-position")) ||
+      this.defaultSizes.xvaluesPosition;
     this.rangeLeft = Number(
       this.getAttribute("range-left") ?? this.defaultSizes.rangeLeft
     );
@@ -37,8 +37,8 @@ class BoxChart extends HTMLElement {
       this.defaultSizes.trianglePosition;
 
     this.isDotRed =
-      this.dotPosition > this.boxStart + this.boxWidth ||
-      this.dotPosition < this.boxStart;
+      this.xvaluesPosition > this.boxStart + this.boxWidth ||
+      this.xvaluesPosition < this.boxStart;
   }
 
   connectedCallback() {
@@ -78,9 +78,9 @@ class BoxChart extends HTMLElement {
         border: 2px solid grey;
         background-color: lightgray;
       }
-      .dot {
+      .xvalues {
         position: absolute;
-        left: ${this.dotPosition - this.halfIconsSize}px;
+        left: ${this.xvaluesPosition - this.halfIconsSize}px;
         border-radius: 50%;
         width: ${this.iconsSize}px;
         height: ${this.iconsSize}px;
@@ -162,8 +162,8 @@ class BoxChart extends HTMLElement {
         <label class="label"><span class="bold">ranges</span>: ${
           this.rangeLeft
         }, ${this.rangeRight}</label>
-        <label class="label"><span class="bold">dot value</span>: ${
-          this.dotPosition
+        <label class="label"><span class="bold">xvalues value</span>: ${
+          this.xvaluesPosition
         }</label>
         <label class="label"><span class="bold">triangle value</span>: ${
           this.trianglePosition
@@ -177,7 +177,7 @@ class BoxChart extends HTMLElement {
         <div class="line"></div>
         <div class="box"></div>
         <div class="triangle"></div>
-        <div class="dot ${this.isDotRed ? "red" : ""}"></div>
+        <div class="xvalues ${this.isDotRed ? "red" : ""}"></div>
         <div class="${this.isDotRed ? "" : "hidden"} exclamation">!</div>
       </div>
       <div class="scale base">
