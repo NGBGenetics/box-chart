@@ -4,12 +4,22 @@ class MultiBoxChart extends HTMLElement {
   borderWidth = 2;
   xvaluesWidth = 16;
   defaultYHeight = 20;
+  logarithmicOffset = 3;
+  precision = 3;
 
   constructor() {
     super();
   }
 
   connectedCallback() {
+    this.recap = this.getAttribute("recap") === "true";
+    try {
+      this.boxes = JSON.parse(
+        "[" + this.getAttribute("boxes")?.replaceAll(" ", "") + "]"
+      );
+    } catch (e) {
+      this.boxes = null;
+    }
     this.width = Number(this.getAttribute("width")) || this.defaultWidth;
     this.heightStep =
       Number(this.getAttribute("heightStep")) || this.defaultYHeight;
@@ -29,17 +39,24 @@ class MultiBoxChart extends HTMLElement {
       ?.replaceAll(" ", "")
       .split(",")
       .map(Number);
-    this.yvalues = this.getAttribute("yvalues")?.replaceAll(" ", "").split(",");
+    this.yvalues = this.getAttribute("yvalues")
+      ?.replaceAll(/\s*(,)\s*/g, ",")
+      .split(",");
+    this.ydescription = this.getAttribute("ydescription")
+      ?.match(/\[(.*?)\]/g)
+      .map((a) => a.replaceAll(/\]|\[/g, ""));
     this.mediane = Number(this.getAttribute("mediane"));
     this.maxValue = Math.max(
       ...this.xvalues,
       ...(box ? box : []),
+      ...(this.boxes ? this.boxes.map(([, end]) => end) : []),
       ...(range ? range : []),
       this.mediane || []
     );
+    console.log(this.maxValue);
     this.distributedMediane = this.getPixelValue(this.mediane);
-    this.distributedDots = this.xvalues.map((xvalues) =>
-      this.getPixelValue(xvalues)
+    this.distributedDots = this.xvalues.map((xvalue, i) =>
+      this.getPixelValue(xvalue)
     );
     this.height = this.xvalues.length * this.heightStep;
     this.boxStart = box?.[0];
@@ -58,8 +75,8 @@ class MultiBoxChart extends HTMLElement {
     let val = value;
     let maxValue = this.maxValue;
     if (this.log && value > 0) {
-      val = Math.log10(value) + 2;
-      maxValue = Math.log10(maxValue) + 2;
+      val = Math.log10(value) + this.logarithmicOffset;
+      maxValue = Math.log10(maxValue) + this.logarithmicOffset;
     }
     return (val / maxValue) * 0.9 * this.width;
   }
@@ -199,11 +216,22 @@ class MultiBoxChart extends HTMLElement {
           left: ${this.distributedBoxEnd - this.borderWidth}px;
         }
 
-        .y-label > span {
+        .y-label > span, 
+        .y-label > a {
           position: relative;
         }
 
-        .y-label > span {
+        .y-label > a {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        .y-label > a:hover {
+          text-decoration: underline;
+        }
+
+        .y-label > span,
+        .y-label > a {
           display: block;
           height: 10px;
           position: absolute;
@@ -238,7 +266,34 @@ class MultiBoxChart extends HTMLElement {
           font-size: 12px;
         }
 
-        /* DOTS POSITION AND BACKGROUND */   
+        .inner-box {
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          height: ${this.heightStep - 2}px;
+          background-color: violet; /* violet if error */
+          transform: translateY(calc(-50% - 1px));
+          background: var(--box-color);
+        }
+
+        /* BOXES WHEN RECAP */
+        ${
+          this.boxes
+            ? this.boxes
+                ?.map((box, i) => {
+                  return `.inner-box:nth-child(${i + 1}) {
+                      left: ${this.getPixelValue(box[0])}px;
+                      bottom: calc(${this.bottomStep * i}px);
+                      width: ${
+                        this.getPixelValue(box[1]) - this.getPixelValue(box[0])
+                      }px;
+                  }\n`;
+                })
+                .join("")
+            : ""
+        }
+        
+        /* DOTS POSITION AND BACKGROUND */
         ${this.distributedDots
           .map((xvalues, i) => {
             return `.xvalues > div:nth-child(${i + 1}) {
@@ -282,7 +337,8 @@ class MultiBoxChart extends HTMLElement {
         /* Y LABELS BOTTOM */
         ${this.distributedDots
           .map((_, i) => {
-            return `.y-label > span:nth-child(${i + 1}) {
+            return `.y-label > span:nth-child(${i + 1}),
+            .y-label > a:nth-child(${i + 1}) {
                       bottom: ${this.bottomStep * (i + 1) - this.borderWidth}px;
                     }\n`;
           })
@@ -301,16 +357,24 @@ class MultiBoxChart extends HTMLElement {
       <div class="axis" id="axis">
         <div class="y-label">
           ${this.printElements(
-            "span",
+            "a",
             this.distributedDots.length,
-            (i) => this.yvalues?.[i] || `T${i + 1}`
+            (i) => this.yvalues?.[i] || `T${i + 1}`,
+            (i) => this.ydescription?.[i]
           )}
         </div>
         <div class="y-line">
           ${this.printElements("span", this.distributedDots.length, (i) => "")}
         </div>
 
-        <div class="box"></div>
+        <div class="box">
+        </div>
+        <div class="inner-box-container">
+          ${
+            this.recap &&
+            this.boxes.map((box) => `<div class="inner-box"></div>`).join("")
+          }
+        </div>
         <div class="range"></div>
         <div class="mediane"></div>
         <div class="xvalues">${this.xvalues
@@ -318,27 +382,39 @@ class MultiBoxChart extends HTMLElement {
             (xvalues) =>
               `<div>${
                 this.lines ? "<p></p>" : ""
-              }<span class="xvalues-label">${xvalues.toFixed(2)}</span></div>`
+              }<span class="xvalues-label">${xvalues.toFixed(
+                this.precision
+              )}</span></div>`
           )
           .join("")}</div>
 
         <div class="x-label">
-          <span class="x-label-mediane">${this.mediane?.toFixed(2)}</span>
+          <span class="x-label-mediane">${this.mediane?.toFixed(
+            this.precision
+          )}</span>
           <span class="x-label-range-start">${this.rangeStart?.toFixed(
             2
           )}</span>
-          <span class="x-label-range-end">${this.rangeEnd?.toFixed(2)}</span>
-          <span class="x-label-box-start">${this.boxStart?.toFixed(2)}</span>
-          <span class="x-label-box-end">${this.boxEnd?.toFixed(2)}</span>
+          <span class="x-label-range-end">${this.rangeEnd?.toFixed(
+            this.precision
+          )}</span>
+          <span class="x-label-box-start">${this.boxStart?.toFixed(
+            this.precision
+          )}</span>
+          <span class="x-label-box-end">${this.boxEnd?.toFixed(
+            this.precision
+          )}</span>
         </div>
       </div>
     `;
   }
 
-  printElements(elementType, length, content) {
+  printElements(elementType, length, content, title = () => {}) {
     return Array.from({ length })
       .map((_, i) => {
-        return `<${elementType}>${content(i)}</${elementType}>`;
+        return `<${elementType} href="#${title(i)}" title="${title(
+          i
+        )}">${content(i)}</${elementType}>`;
       })
       .join("");
   }
@@ -354,21 +430,29 @@ class MultiBoxChart extends HTMLElement {
   }
 
   printBackground(i, xvaluesXPosition) {
-    const [isLast, isInside, isClose] = this.calculateDotPosition(
-      this.distributedBoxStart,
-      this.distributedBoxEnd,
-      xvaluesXPosition,
-      i,
-      this.distributedDots.length - 1
-    );
+    const [isLast, isInside, isClose] = this.recap
+      ? this.calculateDotPosition(
+          this.getPixelValue(this.boxes[i][0]),
+          this.getPixelValue(this.boxes[i][1]),
+          xvaluesXPosition,
+          i,
+          0
+        )
+      : this.calculateDotPosition(
+          this.distributedBoxStart,
+          this.distributedBoxEnd,
+          xvaluesXPosition,
+          i,
+          this.distributedDots.length - 1
+        );
 
     if (isClose) {
-      return isLast
+      return isLast && !this.recap
         ? `background-color: var(--last-close);`
         : `background-color: var(--close);`;
     }
 
-    return isLast
+    return isLast && !this.recap
       ? `background-color: ${
           isInside ? "var(--last-inside)" : "var(--last-outside)"
         };`
