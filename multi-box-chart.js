@@ -432,8 +432,8 @@ class MultiBoxChart extends HTMLElement {
   printBackground(i, xvaluesXPosition) {
     const [isLast, isInside, isClose] = this.recap
       ? this.calculateDotPosition(
-          this.getPixelValue(this.boxes[i][0]),
-          this.getPixelValue(this.boxes[i][1]),
+          this.getPixelValue(this.boxes?.[i]?.[0]),
+          this.getPixelValue(this.boxes?.[i]?.[1]),
           xvaluesXPosition,
           i,
           0
