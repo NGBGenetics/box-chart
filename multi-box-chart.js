@@ -413,9 +413,9 @@ class MultiBoxChart extends HTMLElement {
     return Array.from({ length })
       .map(
         (_, i) =>
-          `<${elementType} ${title(i) ? `href="#${title(i)}"` : ""}>${content(
-            i
-          )}</${elementType}>`
+          `<${elementType} href="#${content(i)}" ${
+            title(i) ? `title="${title(i)}"` : ""
+          }>${content(i)}</${elementType}>`
       )
       .join("");
   }
