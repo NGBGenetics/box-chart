@@ -371,8 +371,11 @@ class MultiBoxChart extends HTMLElement {
         </div>
         <div class="inner-box-container">
           ${
-            this.recap &&
-            this.boxes.map((box) => `<div class="inner-box"></div>`).join("")
+            this.recap
+              ? this.boxes
+                  .map((box) => `<div class="inner-box"></div>`)
+                  .join("")
+              : ""
           }
         </div>
         <div class="range"></div>
@@ -409,7 +412,7 @@ class MultiBoxChart extends HTMLElement {
     `;
   }
 
-  printElements(elementType, length, content, title = () => {}) {
+  printElements(elementType, length, content, title = () => false) {
     return Array.from({ length })
       .map(
         (_, i) =>
