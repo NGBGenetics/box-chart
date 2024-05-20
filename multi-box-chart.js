@@ -321,7 +321,7 @@ class MultiBoxChart extends HTMLElement {
             return `.xvalues > div:nth-child(${i + 1}) > p {
                   position: absolute;
                   left: ${this.xvaluesWidth / 2}px;
-                  bottom: ${this.xvaluesWidth / 2}px;
+                  bottom: ${this.xvaluesWidth / 2 - 2}px;
                   background-color: transparent;
                   height: 2px;
                   width: ${width}px;
