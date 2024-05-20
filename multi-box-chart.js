@@ -53,7 +53,6 @@ class MultiBoxChart extends HTMLElement {
       ...(range ? range : []),
       this.mediane || []
     );
-    console.log(this.maxValue);
     this.distributedMediane = this.getPixelValue(this.mediane);
     this.distributedDots = this.xvalues.map((xvalue, i) =>
       this.getPixelValue(xvalue)
