@@ -12,7 +12,7 @@ class MultiBoxChart extends HTMLElement {
   }
 
   connectedCallback() {
-    this.recap = this.getAttribute("recap") === "true";
+    this.isRecap = this.getAttribute("recap") === "true";
     try {
       this.boxes = JSON.parse(
         "[" + this.getAttribute("boxes")?.replaceAll(" ", "") + "]"
@@ -356,7 +356,7 @@ class MultiBoxChart extends HTMLElement {
       <div class="axis" id="axis">
         <div class="y-label">
           ${this.printElements(
-            "a",
+            this.isRecap ? "a" : "span",
             this.distributedDots.length,
             (i) => this.yvalues?.[i] || `T${i + 1}`,
             (i) => this.ydescription?.[i]
@@ -370,7 +370,7 @@ class MultiBoxChart extends HTMLElement {
         </div>
         <div class="inner-box-container">
           ${
-            this.recap
+            this.isRecap
               ? this.boxes
                   .map((box) => `<div class="inner-box"></div>`)
                   .join("")
@@ -412,10 +412,10 @@ class MultiBoxChart extends HTMLElement {
   }
 
   printElements(elementType, length, content, title = () => false) {
-    return Array.from({ length })
+    return Array.from({ length }) // TODO refactor me
       .map(
         (_, i) =>
-          `<${elementType} href="#${content(i)}" ${
+          `<${elementType} ${this.isRecap ? `href="#${content(i)}"` : ""} ${
             title(i) ? `title="${title(i)}"` : ""
           }>${content(i)}</${elementType}>`
       )
@@ -433,7 +433,7 @@ class MultiBoxChart extends HTMLElement {
   }
 
   printBackground(i, xvaluesXPosition) {
-    const [isLast, isInside, isClose] = this.recap
+    const [isLast, isInside, isClose] = this.isRecap
       ? this.calculateDotPosition(
           this.getPixelValue(this.boxes?.[i]?.[0]),
           this.getPixelValue(this.boxes?.[i]?.[1]),
@@ -450,12 +450,12 @@ class MultiBoxChart extends HTMLElement {
         );
 
     if (isClose) {
-      return isLast && !this.recap
+      return isLast && !this.isRecap
         ? `background-color: var(--last-close);`
         : `background-color: var(--close);`;
     }
 
-    return isLast && !this.recap
+    return isLast || this.isRecap
       ? `background-color: ${
           isInside ? "var(--last-inside)" : "var(--last-outside)"
         };`
@@ -465,7 +465,7 @@ class MultiBoxChart extends HTMLElement {
   }
 
   printBackgroundGradient(i, xvaluesXPosition, xvaluesXNextPosition) {
-    const [isLast, isInside, isClose] = this.calculateDotPosition(
+    const [isInside, isClose] = this.calculateDotPosition(
       this.distributedBoxStart,
       this.distributedBoxEnd,
       xvaluesXPosition,
