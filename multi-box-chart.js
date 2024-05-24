@@ -465,7 +465,7 @@ class MultiBoxChart extends HTMLElement {
   }
 
   printBackgroundGradient(i, xvaluesXPosition, xvaluesXNextPosition) {
-    const [isInside, isClose] = this.calculateDotPosition(
+    const [, isInside, isClose] = this.calculateDotPosition(
       this.distributedBoxStart,
       this.distributedBoxEnd,
       xvaluesXPosition,
